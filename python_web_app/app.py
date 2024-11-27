@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import glob
 from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
@@ -76,6 +77,12 @@ def getCodes():
 
     return jsonify(final_response)
 
+@app.route('/api/getcerts')
+def getcerts():
+    cert_files = glob.glob('..\cert\*.p12')
+    # Create a list of dictionaries with 'fileName' as key and 'filePath' as value
+    certs = [os.path.basename(file) for file in cert_files]
+    return jsonify(certs)
 
 
 if __name__ == '__main__':

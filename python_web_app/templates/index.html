@@ -30,7 +30,7 @@
                 <form>
                     <div class="mb-3">
                         <label for="doc" class="form-label">Document JSON</label>
-                        <textarea class="form-control" id="doc" rows="3" aria-describedby="docHelp"></textarea>
+                        <textarea class="form-control" id="doc" rows="6" aria-describedby="docHelp"></textarea>
                         <div id="docHelp" class="form-text">Base json document, which you wanna sign using cert</div>
                     </div>
                     <div class="mb-3 border border-secondary rounded p-3">
@@ -38,9 +38,11 @@
                         <input class="form-control" id="minifiedDoc" name="doc" type="text" placeholder="Auto-fill" value=""  aria-describedby="mDocHelp" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="cert" class="form-label">Certificate</label>
-                        <input class="form-control form-control-sm" id="cert" type="file"  aria-describedby="certHelp">
-                        <div id="certHelp" class="form-text">Select *.p12 certificate file</div>
+                        <label for="cert" class="form-label">Choose Certificate</label>
+                        <select class="form-select form-select-sm" id="cert" aria-describedby="certHelp">
+                            <option></option>
+                        </select>
+                        <div id="certHelp" class="form-text">Upload *.p12 certificate in <code>cert/</code></div>
                     </div>
                     <div class="mb-3">
                         <label for="certpass" class="form-label">Certificate Passkey</label>
@@ -65,15 +67,78 @@
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
         crossorigin="anonymous"></script>
     <script>
-        document
-            .getElementById("greetButton")
-            .addEventListener("click", function () {
-                fetch("/api/greet/John")
-                    .then((response) => response.json())
-                    .then((data) => {
-                        document.getElementById("greetResponse").innerText = data.message;
-                    });
+        function makeRequest(url, method = 'GET', body = null, timeout = 5000) {
+            // Set up the fetch options based on the method
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            };
+
+            // If it's a POST request, include the body
+            if (method === 'POST' && body) {
+                options.body = JSON.stringify(body);
+            }
+
+            // Create a timeout promise
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timed out')), timeout)
+            );
+
+            // Make the fetch request with the timeout
+            return Promise.race([
+                fetch(url, options)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json(); // Assuming the response is in JSON format
+                    })
+                    .catch(error => {
+                        throw new Error(`Network or parsing error: ${error.message}`);
+                    }),
+                timeoutPromise // If the fetch takes too long, the timeout promise will reject
+            ])
+            .then(data => {
+                return data; // Successfully parsed JSON response
+            })
+            .catch(error => {
+                // Handle all errors here (timeout, network error, invalid JSON, etc.)
+                console.error('Request failed:', error.message);
+                throw error; // Re-throw the error if needed
             });
+        }
+
+        function minifyJson(jsonString) {
+            try {
+                const jsonObject = JSON.parse(jsonString);
+                const minifiedJson = JSON.stringify(jsonObject);
+                return minifiedJson
+            } catch (error) {
+                // console.error('Invalid JSON: ' + error.message);
+            }
+        }
+
+        makeRequest('/api/getcerts')
+            .then(data => {
+                // Assuming the response data is an array of objects with 'id' and 'name' properties
+                const selectElement = document.getElementById('cert');
+                selectElement.innerHTML = ''; // Clear existing options
+
+                data.forEach(cert => {
+                    const option = document.createElement('option');
+                    option.value = cert;  // Assuming 'id' is the value for each option
+                    option.textContent = cert;  // Assuming 'name' is the text to display
+                    selectElement.appendChild(option);
+                });
+            })
+            .catch(error => alert('CertFetch Error:', error.message));
+
+        document.getElementById('doc').addEventListener('input', function() {
+            const jsonString = this.value;
+            document.getElementById('minifiedDoc').value = minifyJson(jsonString);
+        });
     </script>
 </body>
 
