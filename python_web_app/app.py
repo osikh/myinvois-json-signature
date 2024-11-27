@@ -2,7 +2,12 @@ import os
 import requests
 import json
 import glob
-from flask import Flask, render_template, jsonify
+from flask import Flask, request, render_template, jsonify
+import sys
+import os
+# Add the parent directory to sys.path dynamically
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from signjson import create_json_signature, base64_encode, sha256_hash
 
 app = Flask(__name__)
 
@@ -84,9 +89,29 @@ def getcerts():
     certs = [os.path.basename(file) for file in cert_files]
     return jsonify(certs)
 
-@app.route('/api/signdoc')
+@app.route('/api/signdoc', methods=['POST'])
 def signdoc():
-    return jsonify(certs)
+     # Get parameters from the incoming JSON data
+    data = request.get_json()  # Assumes JSON data is sent in the request body
+    
+    # Extract individual parameters from the JSON
+    doc = data.get('doc')
+    cert = data.get('cert')
+    passphrase = data.get('pass')
+
+    # Check if the required parameters are provided
+    if not doc or not cert or not passphrase:
+        return jsonify({"error": "Missing parameters. 'doc', 'cert', and 'pass' are required."}), 400
+    
+    # Call the function to create the signed document (assuming it's in signjson.py)
+    try:
+        signed_doc = create_json_signature(doc, "../cert/"+cert, passphrase)
+        base64 = base64_encode(signed_doc.encode('utf-8'))
+        sha256 = sha256_hash(signed_doc.encode('utf-8'))
+        return jsonify({"signedDoc": signed_doc, "digest": base64, "hash": sha256.hex()}), 200
+    except Exception as e:
+        # Handle any errors that occur during signature creation
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
