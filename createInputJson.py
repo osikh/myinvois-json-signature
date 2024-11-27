@@ -21,7 +21,7 @@ def main():
     # this datetime will be used as SIGNING TIMESTAMP
     utcDatetime = datetime.now(utc_timezone).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    # fix it for easy debugging
+    # Use constant values for easy debugging
     utcDatetime = "2024-11-25T07:52:32Z"
 
     # Separate the date and time parts from the invoiceDateTime
@@ -30,25 +30,22 @@ def main():
     invoice_date = invoice_datetime.strftime('%Y-%m-%d')
     invoice_time = invoice_datetime.strftime('%H:%M:%SZ')
 
-    invoice_date = '2024-11-25'
-    invoice_time = '10:07:44Z'
+    # Use constant values for easy debugging
+    # invoice_date = '2024-11-25'
+    # invoice_time = '10:07:44Z'
 
     # Supplier information
-    supplier_tin = "C20839371040"
-    supplier_id_value = "200601000306"
+    supplier_tin = "C00000000000"
+    supplier_id_value = "000000000000"
     supplier_id_type = "BRN"
-    supplier_email = 'einvoice_smjteratai@smjremit.com'
-    supplier_legal_name = 'SMJ TERATAI SDN. BHD.'
+    supplier_email = 'company@mail.com'
+    supplier_legal_name = 'MY COMPANY SDN. BHD.'
     supplier_phone = '0123456789'
 
     # Customer information
-    customer_tin = "IG21062484010"
-    customer_id_value = "850812136079"
+    customer_tin = "IG00000000001"
+    customer_id_value = "0123456789"
     customer_id_type = "NRIC"
-
-    # Certificate file and PIN (for later use, e.g., for signing)
-    certificate_file = 'cert/cert_smj.p12'
-    certificate_pin = 'Kb0!k#Qv'
 
     # Load the Certificate
     # certificate, private_key, add_certificates = load_certificate(certificate_file, certificate_pin)

@@ -132,7 +132,7 @@ def create_json_signature(inputJson: str, certificate_file: str, certificate_pin
     utcDatetime = datetime.now(utc_timezone).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     # fix it for easy debugging
-    utcDatetime = "2024-11-25T07:52:32Z"
+    # utcDatetime = "2024-11-25T07:52:32Z"
 
     # Load the Certificate
     certificate, private_key, add_certificates = load_certificate(certificate_file, certificate_pin)
@@ -169,9 +169,6 @@ def create_json_signature(inputJson: str, certificate_file: str, certificate_pin
     issuerName = certInfo['issuer']
     subjectName = certInfo['subject']
     serialNumber = str(certInfo['serial'])
-
-    issuerName = "CN=Trial LHDNM Sub CA V1, OU=Terms of use at http://www.posdigicert.com.my, O=LHDNM, C=MY"
-    subjectName = "E=einvoice_smjteratai@smjremit.com, SERIALNUMBER=200601000306, CN=SMJ TERATAI SDN. BHD., OID.2.5.4.97=C20839371040, O=SMJ TERATAI SDN. BHD., C=MY"
 
     certRawDataDigest = base64_encode(certRawData)
 
@@ -358,7 +355,7 @@ def create_json_signature(inputJson: str, certificate_file: str, certificate_pin
 def main():
     # Certificate file and PIN (for later use, e.g., for signing)
     certificate_file = 'cert/cert_dev.p12'
-    certificate_pin = 'Kb0!k#Qv'
+    certificate_pin = '__CERTIFICATE_PASSWORD__'
     inputJson = read_json_from_file('json_files/input.json')
     
     signedDoc = create_json_signature(inputJson, certificate_file, certificate_pin)
