@@ -30,6 +30,9 @@ def main():
     invoice_date = invoice_datetime.strftime('%Y-%m-%d')
     invoice_time = invoice_datetime.strftime('%H:%M:%SZ')
 
+    invoice_date = '2024-11-25'
+    invoice_time = '10:07:44Z'
+
     # Supplier information
     supplier_tin = "C20839371040"
     supplier_id_value = "200601000306"

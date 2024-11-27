@@ -84,6 +84,9 @@ def getcerts():
     certs = [os.path.basename(file) for file in cert_files]
     return jsonify(certs)
 
+@app.route('/api/signdoc')
+def signdoc():
+    return jsonify(certs)
 
 if __name__ == '__main__':
     app.run(debug=True)
